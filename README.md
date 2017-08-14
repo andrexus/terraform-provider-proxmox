@@ -39,7 +39,7 @@ The following arguments are required.
 work in progress
 
 ## Contribution
-This project is based on the [goproxmox] library (https://github.com/andrexus/goproxmox) which is under active development.
+This project is based on the [goproxmox](https://github.com/andrexus/goproxmox) library which is under active development.
 So if you want a new feature feel free to send a pull request for the library.
 
 
