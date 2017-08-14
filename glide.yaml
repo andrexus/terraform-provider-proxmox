@@ -1,0 +1,12 @@
+package: github.com/andrexus/terraform-provider-proxmox
+import:
+- package: github.com/andrexus/goproxmox
+  version: ^0.1.0
+- package: github.com/hashicorp/terraform
+  version: ^0.10.0
+  subpackages:
+  - helper/schema
+  - plugin
+  - terraform
+- package: github.com/fatih/structs
+  version: ^1.0.0
