@@ -17,7 +17,7 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"host": &schema.Schema{
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PROXMOX_HOST", nil),
 				Description: "API host.",
@@ -37,7 +37,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"resource_vm_qemu": resourceVMQemu(),
+			"proxmox_resource_vm": resourceVM(),
 		},
 
 		ConfigureFunc: providerConfigure,

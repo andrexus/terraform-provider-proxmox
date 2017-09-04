@@ -1,0 +1,7 @@
+#[[constraint]]
+#  name = "github.com/andrexus/goproxmox"
+#  version = "0.1.0"
+
+[[constraint]]
+  name = "github.com/hashicorp/terraform"
+  version = "0.10.3"
