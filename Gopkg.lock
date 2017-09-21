@@ -4,14 +4,20 @@
 [[projects]]
   name = "github.com/andrexus/goproxmox"
   packages = [".","pveauth","pveauth/internal"]
-  revision = "d1d728932e23d559cb8034d9e2e292a18696964c"
-  version = "v0.1.0"
+  revision = "56f638316c419a54c1586985c8c1302946613c68"
+  version = "v0.1.2"
 
 [[projects]]
   branch = "master"
   name = "github.com/apparentlymart/go-cidr"
   packages = ["cidr"]
   revision = "2bd8b58cf4275aeb086ade613de226773e29e853"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/armon/go-radix"
+  packages = ["."]
+  revision = "1fca145dffbcaa8fe914309b1ec0cfc67500fe61"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -26,16 +32,16 @@
   revision = "9fd32a8b3d3d3f9d43c341bfe098430e07609480"
 
 [[projects]]
+  name = "github.com/bgentry/speakeasy"
+  packages = ["."]
+  revision = "4aabc24848ce5fd31929f7d1e4ea74d3709c14cd"
+  version = "v0.1.0"
+
+[[projects]]
   name = "github.com/blang/semver"
   packages = ["."]
   revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
   version = "v3.5.1"
-
-[[projects]]
-  name = "github.com/fatih/structs"
-  packages = ["."]
-  revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
-  version = "v1.0"
 
 [[projects]]
   name = "github.com/go-ini/ini"
@@ -111,9 +117,9 @@
 
 [[projects]]
   name = "github.com/hashicorp/terraform"
-  packages = ["config","config/module","dag","flatmap","helper/experiment","helper/hashcode","helper/hilmapstructure","helper/schema","helper/shadow","moduledeps","plugin","plugin/discovery","terraform"]
-  revision = "2041053ee9444fa8175a298093b55a89586a1823"
-  version = "v0.10.0"
+  packages = ["config","config/module","dag","flatmap","helper/hashcode","helper/hilmapstructure","helper/schema","moduledeps","plugin","plugin/discovery","terraform"]
+  revision = "8712b03839d1f63c0bfe11cf5f08e94014aeb85c"
+  version = "v0.10.6"
 
 [[projects]]
   branch = "master"
@@ -126,6 +132,18 @@
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/cli"
+  packages = ["."]
+  revision = "65fcae5817c8600da98ada9d7edf26dd1a84837b"
 
 [[projects]]
   branch = "master"
@@ -163,6 +181,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/posener/complete"
+  packages = [".","cmd","cmd/install","match"]
+  revision = "88e59760adaddb8276c9b15511302890690e2dae"
+
+[[projects]]
+  branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
@@ -179,9 +203,22 @@
   revision = "728b753d0135da6801d45a38e6f43ff55779c5c2"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp","html","html/atom","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "a6577fac2d73be281a500b310739095313165611"
+  revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "b6e1ae21643682ce023deb8d152024597b0e9bb4"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/text"
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  revision = "1cbadb444a806fd9430d14ad08967ed91da4fa0a"
 
 [[projects]]
   name = "google.golang.org/genproto"
@@ -196,6 +233,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "509f9ccbb19df8a6299029091d6b1b965e63cbcf872389d28748c33f231d1b38"
+  inputs-digest = "5e670b04c8ec2aad07f7d4add98bdafc3f1833b942e390fed0c24b5cee062758"
   solver-name = "gps-cdcl"
   solver-version = 1

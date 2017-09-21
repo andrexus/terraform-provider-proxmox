@@ -38,6 +38,38 @@ func resourceVM() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"memory": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"cores": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"ide_devices": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"number": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"file": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"media": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"size": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"network_devices": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -133,15 +165,40 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 
 	config := new(goproxmox.VMConfig)
 
+	if v, ok := d.GetOk("cores"); ok {
+		config.Cores = goproxmox.Int(v.(int))
+	}
+	if v, ok := d.GetOk("memory"); ok {
+		config.Memory = goproxmox.Int(v.(int))
+	}
 	if v, ok := d.GetOk("name"); ok {
 		config.Name = goproxmox.String(v.(string))
 	}
 	if v, ok := d.GetOk("start_at_boot"); ok {
 		config.StartAtBoot = goproxmox.Bool(v.(bool))
 	}
+	if v, ok := d.GetOk("ide_devices"); ok {
+		devices := v.(*schema.Set)
+		for _, element := range devices.List() {
+			elem := element.(map[string]interface{})
+			number := elem["number"].(int)
+			media, err := goproxmox.MediaTypeFromString(elem["media"].(string))
+			if err != nil {
+				return err
+			}
+			device := &goproxmox.IDEDevice{
+				File:     goproxmox.String(elem["file"].(string)),
+				Media:   &media,
+				//Size:     goproxmox.String(elem["size"].(string)),
+			}
+
+			log.Printf("[DEBUG] IDE device %v", device.GetQMOptionValue())
+			config.AddIDEDevice(number, device)
+		}
+	}
 	if v, ok := d.GetOk("network_devices"); ok {
-		networkDevices := v.(*schema.Set)
-		for _, element := range networkDevices.List() {
+		devices := v.(*schema.Set)
+		for _, element := range devices.List() {
 			elem := element.(map[string]interface{})
 			log.Printf("[DEBUG] Network device elem %v", elem)
 			cardModel, err := goproxmox.NetworkCardModelFromString(elem["model"].(string))
@@ -149,47 +206,47 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 				return err
 			}
 			number := elem["number"].(int)
-			networkDevice := &goproxmox.NetworkDevice{
+			device := &goproxmox.NetworkDevice{
 				Model: &cardModel,
 			}
 			if val, ok := elem["bridge"]; ok {
-				networkDevice.Bridge = goproxmox.String(val.(string))
+				device.Bridge = goproxmox.String(val.(string))
 			}
 			//if val, ok := elem["firewall"]; ok {
-			//	networkDevice.Firewall = goproxmox.Bool(val.(bool))
+			//	device.Firewall = goproxmox.Bool(val.(bool))
 			//}
 			//if val, ok := elem["link_down"]; ok {
-			//	networkDevice.LinkDown = goproxmox.Bool(val.(bool))
+			//	device.LinkDown = goproxmox.Bool(val.(bool))
 			//}
 			//if val, ok := elem["macaddr"]; ok {
-			//	networkDevice.MacAddr = goproxmox.String(val.(string))
+			//	device.MacAddr = goproxmox.String(val.(string))
 			//}
 			//if val, ok := elem["queues"]; ok {
-			//	networkDevice.Queues = goproxmox.Int(val.(int))
+			//	device.Queues = goproxmox.Int(val.(int))
 			//}
 			//if val, ok := elem["rate"]; ok {
-			//	networkDevice.Rate = goproxmox.Float64(val.(float64))
+			//	device.Rate = goproxmox.Float64(val.(float64))
 			//}
 			//if val, ok := elem["tag"]; ok {
-			//	networkDevice.Tag = goproxmox.Int(val.(int))
+			//	device.Tag = goproxmox.Int(val.(int))
 			//}
 			//if val, ok := elem["trunks"]; ok {
-			//	networkDevice.Trunks = goproxmox.String(val.(string))
+			//	device.Trunks = goproxmox.String(val.(string))
 			//}
-			log.Printf("[DEBUG] Network device %v", networkDevice.GetQMOptionValue())
-			config.AddNetworkDevice(number, networkDevice)
+			log.Printf("[DEBUG] Network device %v", device.GetQMOptionValue())
+			config.AddNetworkDevice(number, device)
 		}
 	}
 	if v, ok := d.GetOk("virtio_devices"); ok {
-		virtIODevices := v.(*schema.Set)
-		for _, element := range virtIODevices.List() {
+		devices := v.(*schema.Set)
+		for _, element := range devices.List() {
 			elem := element.(map[string]interface{})
 			number := elem["number"].(int)
 			volumeFormat, err := goproxmox.VolumeFormatFromString(elem["format"].(string))
 			if err != nil {
 				return err
 			}
-			virtIODevice := &goproxmox.VirtIODevice{
+			device := &goproxmox.VirtIODevice{
 				File:     goproxmox.String(elem["file"].(string)),
 				Format:   &volumeFormat,
 				//Backup:   goproxmox.Bool(elem["backup"].(bool)),
@@ -198,8 +255,8 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 				//Snapshot: goproxmox.Bool(elem["snapshot"].(bool)),
 			}
 
-			log.Printf("[DEBUG] VirtIO device %v", virtIODevice.GetQMOptionValue())
-			config.AddVirtIODevice(number, virtIODevice)
+			log.Printf("[DEBUG] VirtIO device %v", device.GetQMOptionValue())
+			config.AddVirtIODevice(number, device)
 		}
 	}
 
