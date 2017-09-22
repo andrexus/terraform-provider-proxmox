@@ -38,6 +38,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"proxmox_resource_vm": resourceVM(),
+			"proxmox_resource_volume": resourceVolume(),
 		},
 
 		ConfigureFunc: providerConfigure,
