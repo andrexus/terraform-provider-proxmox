@@ -118,6 +118,22 @@ func resourceVM() *schema.Resource {
 					},
 				},
 			},
+			"serial_devices": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"number": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"device": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 			"virtio_devices": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -187,8 +203,8 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 				return err
 			}
 			device := &goproxmox.IDEDevice{
-				File:     goproxmox.String(elem["file"].(string)),
-				Media:   &media,
+				File:  goproxmox.String(elem["file"].(string)),
+				Media: &media,
 				//Size:     goproxmox.String(elem["size"].(string)),
 			}
 
@@ -237,21 +253,34 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 			config.AddNetworkDevice(number, device)
 		}
 	}
+	if v, ok := d.GetOk("serial_devices"); ok {
+		devices := v.(*schema.Set)
+		for _, element := range devices.List() {
+			elem := element.(map[string]interface{})
+			number := elem["number"].(int)
+			device := &goproxmox.SerialDevice{
+				Value: elem["device"].(string),
+			}
+
+			log.Printf("[DEBUG] Serial device device %v", device.GetQMOptionValue())
+			config.AddSerialDevice(number, device)
+		}
+	}
 	if v, ok := d.GetOk("virtio_devices"); ok {
 		devices := v.(*schema.Set)
 		for _, element := range devices.List() {
 			elem := element.(map[string]interface{})
 			number := elem["number"].(int)
-			volumeFormat, err := goproxmox.VolumeFormatFromString(elem["format"].(string))
-			if err != nil {
-				return err
-			}
+			//volumeFormat, err := goproxmox.VolumeFormatFromString(elem["format"].(string))
+			//if err != nil {
+			//	return err
+			//}
 			device := &goproxmox.VirtIODevice{
-				File:     goproxmox.String(elem["file"].(string)),
-				Format:   &volumeFormat,
+				File:   goproxmox.String(elem["file"].(string)),
+				//Format: &volumeFormat,
 				//Backup:   goproxmox.Bool(elem["backup"].(bool)),
 				//IOThread: goproxmox.Bool(elem["iothread"].(bool)),
-				Size:     goproxmox.String(elem["size"].(string)),
+				Size: goproxmox.String(elem["size"].(string)),
 				//Snapshot: goproxmox.Bool(elem["snapshot"].(bool)),
 			}
 
