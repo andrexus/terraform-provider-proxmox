@@ -1,6 +1,6 @@
 [[constraint]]
   name = "github.com/andrexus/goproxmox"
-  version = "0.1.3"
+  version = "0.1.5"
 
 [[constraint]]
   name = "github.com/hashicorp/terraform"
