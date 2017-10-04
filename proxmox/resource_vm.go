@@ -276,7 +276,7 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 			//	return err
 			//}
 			device := &goproxmox.VirtIODevice{
-				File:   goproxmox.String(elem["file"].(string)),
+				File: goproxmox.String(elem["file"].(string)),
 				//Format: &volumeFormat,
 				//Backup:   goproxmox.Bool(elem["backup"].(bool)),
 				//IOThread: goproxmox.Bool(elem["iothread"].(bool)),
@@ -305,10 +305,23 @@ func resourceVMRead(d *schema.ResourceData, meta interface{}) error {
 	node := d.Get("node").(string)
 	vmID := d.Get("vm_id").(int)
 
+	log.Printf("[DEBUG] Fetching VMConfig for node %s, vmID %d", node, vmID)
 	config, err := client.VMs.GetVMConfig(node, vmID)
 	if err != nil {
+		switch err := err.(type) {
+		case *goproxmox.VMDoesNotExistError:
+			log.Printf("[WARN] %s", err.Error())
+			d.SetId("")
+			return nil
+		case *goproxmox.NodeDoesNotExistError:
+			log.Printf("[WARN] %s", err.Error())
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
+
+	log.Printf("[DEBUG] VMConfig %v", config)
 	if config.Name != nil {
 		d.Set("name", config.Name)
 	}

@@ -3,7 +3,6 @@ package proxmox
 import (
 	"log"
 
-	"errors"
 	"fmt"
 
 	"github.com/andrexus/goproxmox"
@@ -86,8 +85,9 @@ func resourceVolumeRead(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 	}
-
-	return errors.New(fmt.Sprintf("Volume with id %s not found", d.Id()))
+	d.SetId("")
+	log.Printf("[WARN] Volume with id %s not found", d.Id())
+	return nil
 }
 
 func resourceVolumeDelete(d *schema.ResourceData, meta interface{}) error {
