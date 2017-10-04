@@ -5,6 +5,8 @@ import (
 
 	"strconv"
 
+	"time"
+
 	"github.com/andrexus/goproxmox"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -361,6 +363,17 @@ func resourceVMDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*goproxmox.Client)
 	node := d.Get("node").(string)
 	vmID := d.Get("vm_id").(int)
+
+	status, err := client.VMs.GetVMCurrentStatus("ve02", vmID)
+	if err != nil {
+		return err
+	}
+	if status.Status == "running" {
+		if err := client.VMs.StopVM(node, vmID); err != nil {
+			return err
+		}
+		time.Sleep(10 * time.Second)
+	}
 
 	if err := client.VMs.DeleteVM(node, vmID); err != nil {
 		return err
