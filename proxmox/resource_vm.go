@@ -32,7 +32,15 @@ func resourceVM() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"args": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"smbios1": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -183,6 +191,9 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 
 	config := new(goproxmox.VMConfig)
 
+	if v, ok := d.GetOk("args"); ok {
+		config.Args = goproxmox.String(v.(string))
+	}
 	if v, ok := d.GetOk("cores"); ok {
 		config.Cores = goproxmox.Int(v.(int))
 	}
@@ -191,6 +202,9 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	if v, ok := d.GetOk("name"); ok {
 		config.Name = goproxmox.String(v.(string))
+	}
+	if v, ok := d.GetOk("smbios1"); ok {
+		config.SMBIOS1 = goproxmox.String(v.(string))
 	}
 	if v, ok := d.GetOk("start_at_boot"); ok {
 		config.StartAtBoot = goproxmox.Bool(v.(bool))
@@ -236,9 +250,9 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 			//if val, ok := elem["link_down"]; ok {
 			//	device.LinkDown = goproxmox.Bool(val.(bool))
 			//}
-			//if val, ok := elem["macaddr"]; ok {
-			//	device.MacAddr = goproxmox.String(val.(string))
-			//}
+			if val, ok := elem["macaddr"]; ok {
+				device.MacAddr = goproxmox.String(val.(string))
+			}
 			//if val, ok := elem["queues"]; ok {
 			//	device.Queues = goproxmox.Int(val.(int))
 			//}
