@@ -7,10 +7,8 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-const (
-	provider_name           = "terraform-provider-proxmox"
-	provider_version string = "v0.1.0"
-)
+var providerVersion = "unset"
+const providerName = "terraform-provider-proxmox"
 
 // Provider returns a schema.Provider for Proxmox.
 func Provider() terraform.ResourceProvider {
@@ -37,7 +35,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"proxmox_resource_vm": resourceVM(),
+			"proxmox_resource_vm":     resourceVM(),
 			"proxmox_resource_volume": resourceVolume(),
 		},
 
@@ -46,7 +44,7 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	log.Printf("[DEBUG] Configure %s. Version %s", provider_name, provider_version)
+	log.Printf("[DEBUG] Configure %s. Version %s", providerName, providerVersion)
 	config := Config{
 		Host:     d.Get("host").(string),
 		Username: d.Get("username").(string),
