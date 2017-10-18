@@ -250,7 +250,7 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 			//if val, ok := elem["link_down"]; ok {
 			//	device.LinkDown = goproxmox.Bool(val.(bool))
 			//}
-			if val, ok := elem["macaddr"]; ok {
+			if val, ok := elem["macaddr"]; ok && val != "" {
 				device.MacAddr = goproxmox.String(val.(string))
 			}
 			//if val, ok := elem["queues"]; ok {
@@ -378,7 +378,7 @@ func resourceVMDelete(d *schema.ResourceData, meta interface{}) error {
 	node := d.Get("node").(string)
 	vmID := d.Get("vm_id").(int)
 
-	status, err := client.VMs.GetVMCurrentStatus("ve02", vmID)
+	status, err := client.VMs.GetVMCurrentStatus(node, vmID)
 	if err != nil {
 		return err
 	}
