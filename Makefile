@@ -17,6 +17,7 @@ export GOLDFLAGS
 all: bin dist
 
 bin: tools
+	dep ensure
 	@echo "==> Building..."
 	gox -ldflags "${GOLDFLAGS}" -osarch "${OSARCH}" -output "build/{{.OS}}_{{.Arch}}_{{.Dir}}"
 
