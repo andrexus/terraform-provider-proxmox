@@ -32,6 +32,16 @@ func resourceVM() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"template": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default: false,
+				ForceNew: true,
+			},
+			"clone": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 			"args": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -185,6 +195,10 @@ func resourceVM() *schema.Resource {
 }
 
 func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
+	if _, ok := d.GetOk("clone"); ok {
+		return resourceVMCloneCreate(d, meta)
+	}
+
 	client := meta.(*goproxmox.Client)
 	node := d.Get("node").(string)
 	vmID := d.Get("vm_id").(int)
@@ -310,8 +324,75 @@ func resourceVMCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(strconv.Itoa(vmID))
+	log.Printf("[INFO] VM with ID %s created", d.Id())
 
-	log.Printf("[INFO] VM ID: %s", d.Id())
+	isTemplate := d.Get("template").(bool)
+	if isTemplate {
+		if err := client.VMs.CreateVMTemplate(node, vmID, ""); err != nil {
+			return err
+		}
+		log.Printf("[INFO] VM template from ID %s created", d.Id())
+	}
+
+	return resourceVMRead(d, meta)
+}
+
+func resourceVMCloneCreate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*goproxmox.Client)
+	node := d.Get("node").(string)
+	newID := d.Get("vm_id").(int)
+
+	cloneConfig := d.Get("clone").(map[string]interface{})
+	sourceID := 0
+	if val, ok := cloneConfig["source_id"]; ok {
+		v, err := strconv.Atoi(val.(string))
+		if err != nil {
+			return err
+		}
+		sourceID = v
+	}
+
+	c := &goproxmox.VMCloneConfig{}
+	if v, ok := d.GetOk("name"); ok {
+		c.Name = goproxmox.String(v.(string))
+	}
+	if _, ok := cloneConfig["full"]; ok {
+		c.Full = goproxmox.Bool(true)
+	}
+
+	log.Printf("[DEBUG] Cloning VM %d -> %d", sourceID, newID)
+	if err := client.VMs.CloneVM(node, sourceID, newID, c); err != nil {
+		return err
+	}
+	d.SetId(strconv.Itoa(newID))
+	log.Printf("[INFO] VM with ID %s created", d.Id())
+
+	if v, ok := d.GetOk("network_devices"); ok {
+		config := new(goproxmox.VMConfig)
+		devices := v.(*schema.Set)
+		for _, element := range devices.List() {
+			elem := element.(map[string]interface{})
+			log.Printf("[DEBUG] Network device elem %v", elem)
+			cardModel, err := goproxmox.NetworkCardModelFromString(elem["model"].(string))
+			if err != nil {
+				return err
+			}
+			number := elem["number"].(int)
+			device := &goproxmox.NetworkDevice{
+				Model: &cardModel,
+			}
+			if val, ok := elem["bridge"]; ok {
+				device.Bridge = goproxmox.String(val.(string))
+			}
+			if val, ok := elem["macaddr"]; ok && val != "" {
+				device.MacAddr = goproxmox.String(val.(string))
+			}
+			config.AddNetworkDevice(number, device)
+		}
+		if err := client.VMs.UpdateVM(node, newID, config, false); err != nil {
+			return err
+		}
+	}
 
 	return resourceVMRead(d, meta)
 }
