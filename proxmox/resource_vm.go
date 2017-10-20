@@ -365,10 +365,12 @@ func resourceVMCloneCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	d.SetId(strconv.Itoa(newID))
-	log.Printf("[INFO] VM with ID %s created", d.Id())
+	log.Printf("[INFO] VM with ID %s cloned", d.Id())
+	log.Printf("[DEBUG] Waiting for 5 seconds\n")
+	time.Sleep(5 * time.Second)
 
+	updateConfig := new(goproxmox.VMConfig)
 	if v, ok := d.GetOk("network_devices"); ok {
-		config := new(goproxmox.VMConfig)
 		devices := v.(*schema.Set)
 		for _, element := range devices.List() {
 			elem := element.(map[string]interface{})
@@ -387,9 +389,17 @@ func resourceVMCloneCreate(d *schema.ResourceData, meta interface{}) error {
 			if val, ok := elem["macaddr"]; ok && val != "" {
 				device.MacAddr = goproxmox.String(val.(string))
 			}
-			config.AddNetworkDevice(number, device)
+			updateConfig.AddNetworkDevice(number, device)
 		}
-		if err := client.VMs.UpdateVM(node, newID, config, false); err != nil {
+	}
+	if v, ok := d.GetOk("cores"); ok {
+		updateConfig.Cores = goproxmox.Int(v.(int))
+	}
+	if v, ok := d.GetOk("memory"); ok {
+		updateConfig.Memory = goproxmox.Int(v.(int))
+	}
+	if updateConfig.NetworkDevices != nil || updateConfig.Cores != nil || updateConfig.Memory != nil {
+		if err := client.VMs.UpdateVM(node, newID, updateConfig, false); err != nil {
 			return err
 		}
 	}
