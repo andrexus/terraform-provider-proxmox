@@ -1,4 +1,4 @@
-terraform-provider-proxmox
+terraform-provider-proxmox [![Build Status](https://travis-ci.org/andrexus/terraform-provider-proxmox.svg?branch=master)](https://travis-ci.org/andrexus/terraform-provider-proxmox)
 ==========================
 
 Terraform provider for Proxmox VE
