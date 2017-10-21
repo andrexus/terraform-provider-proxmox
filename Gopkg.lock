@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/andrexus/goproxmox"
   packages = [".","pveauth","pveauth/internal"]
-  revision = "ab408b9ff227a3d0bbabbde67539623f53f66f1e"
-  version = "v0.1.6"
+  revision = "f03f0321bbdeced34d870685f500b8d9ae99ba06"
+  version = "v0.1.7"
 
 [[projects]]
   branch = "master"
@@ -243,6 +243,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b25b79c4a7f9d7a58110ef0009a8629f5ea812275789a26cfc5da547c61f6e00"
+  inputs-digest = "4e6934fa459be99130d3aa4c9ba24a11f4bb6f25a300f71711cdde2b24748bee"
   solver-name = "gps-cdcl"
   solver-version = 1
